@@ -52,7 +52,7 @@ const getFinancialMonthInfo = (fechaString) => {
 
 export default function TransactionForm({ categories, onAddTransaction }) {
   const [fecha, setFecha] = useState(getLocalDateString());
-  const [tipo, setTipo] = useState('egreso');
+  const [tipo, setTipo] = useState('ingreso');
   const financialMonthInfo = getFinancialMonthInfo(fecha);
   const [categoria, setCategoria] = useState('');
   const [concepto, setConcepto] = useState('');
