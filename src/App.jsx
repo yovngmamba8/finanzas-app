@@ -4,37 +4,60 @@ import Dashboard from './components/Dashboard';
 import TransactionForm from './components/TransactionForm';
 import TransactionList from './components/TransactionList';
 import CategorySummary from './components/CategorySummary';
+import Login from './components/Login';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const MESES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-export default function App() {
+function AppContent() {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState({ ingreso: [], egreso: [] });
   const [selectedMonth, setSelectedMonth] = useState(MESES[new Date().getMonth()]);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  // Cargar datos al iniciar
+  // Cargar datos al iniciar si el usuario está logueado
   useEffect(() => {
+    let mounted = true;
+    
     async function loadData() {
+      if (!user) {
+        await Promise.resolve(); // Hacer que las actualizaciones de estado sean asíncronas para evitar cascading renders
+        if (mounted) {
+          setTransactions([]);
+          setCategories({ ingreso: [], egreso: [] });
+          setLoading(false);
+        }
+        return;
+      }
+      
+      setLoading(true);
       try {
-        dbService.init();
         const txs = await dbService.getTransactions();
         const cats = await dbService.getCategories();
         
-        setTransactions(txs);
-        setCategories(cats);
+        if (mounted) {
+          setTransactions(txs);
+          setCategories(cats);
+        }
       } catch (error) {
         console.error("Error cargando datos:", error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     }
     loadData();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
   // Control del tema (Claro / Oscuro)
   useEffect(() => {
@@ -67,13 +90,17 @@ export default function App() {
     }
   };
 
-
-  if (loading) {
+  if (authLoading || (user && loading)) {
     return (
       <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <h3>Cargando tu portal financiero...</h3>
       </div>
     );
+  }
+
+  // Protección de Rutas: Si no hay usuario, mostrar vista de Login
+  if (!user) {
+    return <Login />;
   }
 
   return (
@@ -88,10 +115,14 @@ export default function App() {
             </svg>
             Finanzas Personales
           </h1>
-          <p>Tu portal de finanzas inteligente y escalable</p>
+          <p style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>Portal financiero inteligente</span>
+            <span style={{ color: 'var(--text-muted)' }}>|</span>
+            <span style={{ color: 'var(--accent-primary)', fontSize: '0.85rem' }}>{user.email}</span>
+          </p>
         </div>
 
-        {/* CONTROLES (SELECTOR DE TEMA Y MES) */}
+        {/* CONTROLES (SELECTOR DE TEMA, MES Y LOGOUT) */}
         <div className="controls-container">
           {/* Botón de alternancia de tema */}
           <button 
@@ -120,7 +151,7 @@ export default function App() {
 
           {/* Selector de Mes */}
           <div className="month-selector">
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Selecciona el mes:</span>
+            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Mes:</span>
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
@@ -132,6 +163,29 @@ export default function App() {
               ))}
             </select>
           </div>
+
+          {/* Botón de Cerrar Sesión */}
+          <button 
+            onClick={signOut}
+            className="theme-toggle-btn"
+            style={{ 
+              color: 'var(--color-expense)',
+              borderColor: 'rgba(234, 179, 8, 0.2)',
+              background: 'rgba(234, 179, 8, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: '500'
+            }}
+            title="Cerrar Sesión"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span style={{ display: 'none' }}>Cerrar Sesión</span>
+          </button>
         </div>
       </header>
 
@@ -167,5 +221,13 @@ export default function App() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

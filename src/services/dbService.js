@@ -55,16 +55,6 @@ const getFinancialMonthInfo = (fechaString) => {
 };
 
 export const dbService = {
-  // Inicializar almacenamiento local para categorías y presupuestos
-  init() {
-    if (!localStorage.getItem('finanzas_categories')) {
-      localStorage.setItem('finanzas_categories', JSON.stringify(DEFAULT_CATEGORIES));
-    }
-    if (!localStorage.getItem('finanzas_budgets')) {
-      localStorage.setItem('finanzas_budgets', JSON.stringify(DEFAULT_BUDGETS));
-    }
-  },
-
   // Helper para convertir DD/MM/YYYY a YYYY-MM-DD para calcular el mes
   convertToYMD(dateStr) {
     if(!dateStr) return '';
@@ -75,7 +65,6 @@ export const dbService = {
 
   // Obtener todas las transacciones de Supabase
   async getTransactions() {
-    this.init();
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
@@ -112,14 +101,20 @@ export const dbService = {
 
   // Agregar una transacción a Supabase
   async addTransaction(transaction) {
-    this.init();
-    // Mapear de Frontend a BD
+    // Obtener sesión del usuario actual para asociar el user_id
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      throw new Error("No hay un usuario autenticado para realizar esta acción.");
+    }
+
+    // Mapear de Frontend a BD e incluir user_id
     const newRecord = {
       date: transaction.fecha,
       description: transaction.concepto,
       amount: Number(transaction.monto),
       type: transaction.tipo,
-      category: transaction.categoria
+      category: transaction.categoria,
+      user_id: session.user.id
     };
 
     const { data, error } = await supabase
@@ -150,7 +145,6 @@ export const dbService = {
 
   // Eliminar una transacción de Supabase
   async deleteTransaction(id) {
-    this.init();
     const { error } = await supabase
       .from('transactions')
       .delete()
@@ -163,24 +157,20 @@ export const dbService = {
     return true;
   },
 
-  // Obtener categorías (Local)
+  // Obtener categorías por defecto
   async getCategories() {
-    this.init();
-    return JSON.parse(localStorage.getItem('finanzas_categories'));
+    return DEFAULT_CATEGORIES;
   },
 
-  // Obtener presupuestos base (Local)
+  // Obtener presupuestos base por defecto
   async getBudgets() {
-    this.init();
-    return JSON.parse(localStorage.getItem('finanzas_budgets'));
+    return DEFAULT_BUDGETS;
   },
 
-  // Actualizar presupuesto de una categoría (Local)
+  // Actualizar presupuesto de una categoría (simulado en memoria o modificado localmente)
   async updateBudget(category, amount) {
-    this.init();
-    const budgets = JSON.parse(localStorage.getItem('finanzas_budgets'));
+    const budgets = { ...DEFAULT_BUDGETS };
     budgets[category] = Number(amount) || 0;
-    localStorage.setItem('finanzas_budgets', JSON.stringify(budgets));
     return budgets;
   }
 };
