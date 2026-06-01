@@ -73,7 +73,7 @@ export default function TransactionList({ transactions, selectedMonth, onDeleteT
                 <th>Tipo</th>
                 <th>Categoría</th>
                 <th>Concepto</th>
-                <th style={{ textAlign: 'right' }}>Monto Real</th>
+                <th style={{ textAlign: 'right' }}>Monto</th>
                 <th style={{ textAlign: 'center' }}>Acciones</th>
               </tr>
             </thead>

@@ -17,7 +17,8 @@ function AppContent() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState({ ingreso: [], egreso: [] });
   const [selectedMonth, setSelectedMonth] = useState(MESES[new Date().getMonth()]);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [isManualOverride, setIsManualOverride] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Cargar datos al iniciar si el usuario está logueado
@@ -67,6 +68,30 @@ function AppContent() {
       document.body.classList.add('light-theme');
     }
   }, [isDarkMode]);
+
+  // Escuchar cambios en la preferencia del sistema
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      if (!isManualOverride) {
+        setIsDarkMode(e.matches);
+      }
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, [isManualOverride]);
 
   // Agregar transacción
   const handleAddTransaction = async (newTx) => {
@@ -127,7 +152,7 @@ function AppContent() {
           {/* Botón de alternancia de tema */}
           <button 
             className="theme-toggle-btn"
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={() => { setIsDarkMode(!isDarkMode); setIsManualOverride(true); }}
             title={isDarkMode ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
           >
             {isDarkMode ? (

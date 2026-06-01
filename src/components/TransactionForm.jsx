@@ -111,17 +111,17 @@ export default function TransactionForm({ categories, onAddTransaction }) {
           <div className="tab-container">
             <button
               type="button"
-              className={`tab ${tipo === 'egreso' ? 'active' : ''}`}
-              onClick={() => setTipo('egreso')}
-            >
-              Egreso
-            </button>
-            <button
-              type="button"
               className={`tab ${tipo === 'ingreso' ? 'active' : ''}`}
               onClick={() => setTipo('ingreso')}
             >
               Ingreso
+            </button>
+            <button
+              type="button"
+              className={`tab ${tipo === 'egreso' ? 'active' : ''}`}
+              onClick={() => setTipo('egreso')}
+            >
+              Egreso
             </button>
           </div>
         </div>
