@@ -21,6 +21,15 @@ function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
   const [isManualOverride, setIsManualOverride] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Cerrar selector de meses al hacer click fuera
+  useEffect(() => {
+    if (!isDropdownOpen) return;
+    const closeDropdown = () => setIsDropdownOpen(false);
+    window.addEventListener('click', closeDropdown);
+    return () => window.removeEventListener('click', closeDropdown);
+  }, [isDropdownOpen]);
 
   // Cargar datos al iniciar si el usuario está logueado
   useEffect(() => {
@@ -175,19 +184,40 @@ function AppContent() {
             )}
           </button>
 
-          {/* Selector de Mes */}
-          <div className="month-selector">
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Mes:</span>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+          {/* Selector de Mes Custom */}
+          <div className="month-selector-container">
+            <button 
+              className="month-selector-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(prev => !prev);
+              }}
+              aria-haspopup="listbox"
+              aria-expanded={isDropdownOpen}
             >
-              {MESES.map((mes) => (
-                <option key={mes} value={mes}>
-                  {mes}
-                </option>
-              ))}
-            </select>
+              <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Mes:</span>
+              <span style={{ fontWeight: '600' }}>{selectedMonth}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease', transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', color: 'var(--text-secondary)' }}>
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            
+            {isDropdownOpen && (
+              <ul className="month-dropdown-list">
+                {MESES.map((mes) => (
+                  <li 
+                    key={mes}
+                    className={`month-dropdown-item ${selectedMonth === mes ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedMonth(mes);
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    {mes}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Botón de Cerrar Sesión */}
