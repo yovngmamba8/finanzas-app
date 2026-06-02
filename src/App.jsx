@@ -14,6 +14,7 @@ const MESES = [
 
 function AppContent() {
   const { user, loading: authLoading, signOut } = useAuth();
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : 'Usuario');
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState({ ingreso: [], egreso: [] });
   const [selectedMonth, setSelectedMonth] = useState(MESES[new Date().getMonth()]);
@@ -143,7 +144,7 @@ function AppContent() {
           <p style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>Portal financiero inteligente</span>
             <span style={{ color: 'var(--text-muted)' }}>|</span>
-            <span style={{ color: 'var(--accent-primary)', fontSize: '0.85rem' }}>{user.email}</span>
+            <span style={{ color: 'var(--accent-primary)', fontSize: '0.85rem' }}>{displayName}</span>
           </p>
         </div>
 
