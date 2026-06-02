@@ -10,6 +10,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  // Validaciones en tiempo real
+  const isPasswordLengthValid = password.length >= 8;
+  const doPasswordsMatch = password === confirmPassword;
+  const isFormValidForRegister = isPasswordLengthValid && doPasswordsMatch && fullName.trim().length > 0 && email.trim().length > 0;
+  const isSubmitDisabled = loading || (isRegistering && !isFormValidForRegister);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +28,11 @@ export default function Login() {
       if (isRegistering) {
         if (!fullName.trim()) {
           setErrorMsg('Por favor ingresa tu nombre');
+          setLoading(false);
+          return;
+        }
+        if (password.length < 8) {
+          setErrorMsg('La contraseña debe tener al menos 8 caracteres');
           setLoading(false);
           return;
         }
@@ -40,7 +52,7 @@ export default function Login() {
         });
         if (error) throw error;
         if (data && !data.session) {
-          setSuccessMsg('Te hemos enviado un correo de confirmación. Revisa tu bandeja de entrada para activar tu cuenta.');
+          setRegistrationSuccess(true);
         } else {
           setSuccessMsg('¡Registro exitoso! Cuenta creada e inicio de sesión automático.');
         }
@@ -75,6 +87,48 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  if (registrationSuccess) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        padding: '20px',
+        background: 'var(--bg-primary)'
+      }}>
+        <div className="glass-panel" style={{ width: '100%', maxWidth: '420px', textAlign: 'center', padding: '32px 24px' }}>
+          <div style={{ display: 'inline-flex', marginBottom: '16px', color: 'var(--color-income)' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <h2 style={{ fontSize: '1.6rem', marginBottom: '12px', color: 'var(--text-primary)' }}>¡Casi listo!</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
+            Hemos enviado un correo de confirmación a <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+          </p>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setRegistrationSuccess(false);
+              setIsRegistering(false);
+              setEmail('');
+              setPassword('');
+              setConfirmPassword('');
+              setFullName('');
+              setErrorMsg('');
+              setSuccessMsg('');
+            }}
+          >
+            Volver al inicio de sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -174,6 +228,26 @@ export default function Login() {
               disabled={loading}
               autoComplete={isRegistering ? "new-password" : "current-password"}
             />
+            {isRegistering && (
+              <div style={{
+                fontSize: '0.8rem',
+                marginTop: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: isPasswordLengthValid ? 'var(--color-income)' : '#ef4444',
+                transition: 'var(--transition-smooth)'
+              }}>
+                {isPasswordLengthValid ? (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                ) : (
+                  <span style={{ display: 'inline-block', width: '6px', height: '6px', backgroundColor: '#ef4444', borderRadius: '50%' }}></span>
+                )}
+                <span>Mínimo 8 caracteres</span>
+              </div>
+            )}
           </div>
 
           {isRegistering && (
@@ -189,10 +263,35 @@ export default function Login() {
                 disabled={loading}
                 autoComplete="new-password"
               />
+              {confirmPassword.length > 0 && (
+                <div style={{
+                  fontSize: '0.8rem',
+                  marginTop: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: doPasswordsMatch ? 'var(--color-income)' : '#ef4444',
+                  transition: 'var(--transition-smooth)'
+                }}>
+                  {doPasswordsMatch ? (
+                    <>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Las contraseñas coinciden</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ display: 'inline-block', width: '6px', height: '6px', backgroundColor: '#ef4444', borderRadius: '50%' }}></span>
+                      <span>Las contraseñas no coinciden</span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          <button type="submit" className="btn" style={{ marginTop: '8px' }} disabled={loading}>
+          <button type="submit" className="btn" style={{ marginTop: '8px' }} disabled={isSubmitDisabled}>
             {loading ? (
               <span>Cargando...</span>
             ) : (
@@ -220,22 +319,22 @@ export default function Login() {
           onClick={handleGoogleLogin}
           disabled={loading}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
             <path
               fill="#EA4335"
-              d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3.01A11.962 11.962 0 0 0 12 .909a11.95 11.95 0 0 0-8.91 4.025l2.176 4.831Z"
+              d="M20.285 12.3c0-.66-.06-1.29-.17-1.89H12v3.58h4.648a3.98 3.98 0 0 1-1.73 2.61v2.17h2.798c1.64-1.51 2.569-3.73 2.569-6.47Z"
             />
             <path
               fill="#4285F4"
-              d="M23.49 12.275c0-.79-.06-1.57-.18-2.34H12v4.47h6.46a5.52 5.52 0 0 1-2.4 3.63v3.01h3.87c2.26-2.08 3.56-5.14 3.56-8.77Z"
+              d="M12 20.73c2.36 0 4.34-.78 5.79-2.12l-2.798-2.17a5.536 5.536 0 0 1-8.347-2.91H3.722v2.24A8.995 8.995 0 0 0 12 20.73Z"
             />
             <path
               fill="#FBBC05"
-              d="M3.09 15.115a7.127 7.127 0 0 1 0-6.23L.914 4.054a11.966 11.966 0 0 0 0 15.892l2.176-4.831Z"
+              d="M6.645 13.53a5.56 5.56 0 0 1 0-3.06V8.23H3.722a8.995 8.995 0 0 0 0 7.54l2.923-2.24Z"
             />
             <path
               fill="#34A853"
-              d="M12 19.091c-1.89 0-3.59-.64-4.89-1.72l-2.176 4.83A11.94 11.94 0 0 0 12 23.091c3.24 0 5.95-1.07 7.94-2.91l-3.87-3.01c-1.07.72-2.45 1.16-4.07 1.16Z"
+              d="M12 7.27c1.28 0 2.43.44 3.34 1.31l2.5-2.5A8.92 8.92 0 0 0 12 3.27a8.995 8.995 0 0 0-8.278 5.24l2.923 2.24c.69-2.07 2.62-3.48 5.355-3.48Z"
             />
           </svg>
           Continuar con Google
