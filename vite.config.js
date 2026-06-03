@@ -8,15 +8,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Finanzas App',
-        short_name: 'Finanzas',
+        name: 'Finance App',
+        short_name: 'Finance',
         description: 'Aplicación de finanzas personales',
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
         icons: [
           {
-            src: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+            src: '/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           }
