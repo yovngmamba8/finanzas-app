@@ -7,7 +7,8 @@ const checkIsIOS = () => {
 
 const checkIsStandalone = () => {
   if (typeof window === 'undefined') return false;
-  return !!(window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches);
+  const isInstalled = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator && window.navigator.standalone === true);
+  return !!isInstalled;
 };
 
 export default function InstallPrompt() {
@@ -51,13 +52,20 @@ export default function InstallPrompt() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     
-    deferredPrompt.prompt();
-    
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`Usuario eligió instalar PWA: ${outcome}`);
-    
-    setDeferredPrompt(null);
-    setIsVisible(false);
+    try {
+      if (typeof deferredPrompt.prompt === 'function') {
+        deferredPrompt.prompt();
+      }
+      if (deferredPrompt.userChoice) {
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Usuario eligió instalar PWA: ${outcome}`);
+      }
+    } catch (err) {
+      console.error("Error al disparar el prompt de instalación PWA:", err);
+    } finally {
+      setDeferredPrompt(null);
+      setIsVisible(false);
+    }
   };
 
   const handleDismiss = () => {

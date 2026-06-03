@@ -332,6 +332,7 @@ input:focus, select:focus, textarea:focus {
   border-radius: var(--radius-md);
   width: 100%;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   position: relative;
 }
 
@@ -461,6 +462,8 @@ body.light-theme tr:hover td {
   max-height: 380px;
   overflow-y: auto;
   padding-right: 8px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Premium Scrollbar for Category Summary */
@@ -492,15 +495,15 @@ body.light-theme .category-summary-scroll-container::-webkit-scrollbar-thumb:hov
 
 @media (max-width: 768px) {
   .table-container {
-    max-height: none;
-    overflow-y: visible;
+    max-height: 55vh;
+    overflow-y: auto;
     overflow-x: auto;
   }
   
   .category-summary-scroll-container {
-    max-height: none;
-    overflow-y: visible;
-    padding-right: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 4px;
   }
 }
 
