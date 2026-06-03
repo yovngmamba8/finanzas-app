@@ -5,7 +5,6 @@ import TransactionForm from './components/TransactionForm';
 import TransactionList from './components/TransactionList';
 import CategorySummary from './components/CategorySummary';
 import Login from './components/Login';
-import InstallPrompt from './components/InstallPrompt';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const MESES = [
@@ -245,9 +244,6 @@ function AppContent() {
           </button>
         </div>
       </header>
-
-      {/* BANNER DE INSTALACIÓN PWA */}
-      <InstallPrompt />
 
       {/* DASHBOARD PRINCIPAL */}
       <Dashboard

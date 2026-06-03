@@ -490,6 +490,20 @@ body.light-theme .category-summary-scroll-container::-webkit-scrollbar-thumb:hov
   background: var(--accent-primary);
 }
 
+@media (max-width: 768px) {
+  .table-container {
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: auto;
+  }
+  
+  .category-summary-scroll-container {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
+
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../services/dbService';
+import InstallPrompt from './InstallPrompt';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -339,6 +340,8 @@ export default function Login() {
           </svg>
           Continuar con Google
         </button>
+
+        <InstallPrompt />
 
         <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '20px' }}>
           <button

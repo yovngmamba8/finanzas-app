@@ -23,7 +23,7 @@ export default function InstallPrompt() {
     if (isStandalone || isDismissed) {
       return false;
     }
-    return isIOS; // Empieza visible si es iOS y cumple las condiciones
+    return isIOS; // Empieza visible si es iOS y no es standalone / dismissed
   });
 
   useEffect(() => {
@@ -65,10 +65,11 @@ export default function InstallPrompt() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  // Si ya está instalada, se está ejecutando como PWA o no es visible, no renderizar nada
+  if (isStandalone || !isVisible) return null;
 
   return (
-    <div className="install-prompt-container glass-panel animate-slide-in">
+    <div className="install-prompt-container glass-panel animate-slide-in" style={{ marginTop: '20px', marginBottom: '10px' }}>
       <div className="install-prompt-content">
         <div className="install-prompt-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
