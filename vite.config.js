@@ -11,19 +11,22 @@ export default defineConfig({
         name: 'Finance App',
         short_name: 'Finance',
         description: 'Aplicación de finanzas personales',
+        start_url: '.',
         theme_color: '#000000',
         background_color: '#000000',
         display: 'standalone',
         icons: [
           {
-            src: '/icon-192x192.png',
+            src: '/logo.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
-            src: '/icon-512x512.png',
+            src: '/logo.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

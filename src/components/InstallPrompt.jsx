@@ -50,21 +50,19 @@ export default function InstallPrompt() {
   }, [isStandalone]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-    
-    try {
-      if (typeof deferredPrompt.prompt === 'function') {
+    if (deferredPrompt) {
+      try {
         deferredPrompt.prompt();
-      }
-      if (deferredPrompt.userChoice) {
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`Usuario eligió instalar PWA: ${outcome}`);
+        if (outcome === 'accepted') {
+          setDeferredPrompt(null);
+          setIsVisible(false);
+        }
+      } catch (err) {
+        console.error("Error al disparar el prompt de instalación PWA:", err);
+        setDeferredPrompt(null);
+        setIsVisible(false);
       }
-    } catch (err) {
-      console.error("Error al disparar el prompt de instalación PWA:", err);
-    } finally {
-      setDeferredPrompt(null);
-      setIsVisible(false);
     }
   };
 

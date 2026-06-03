@@ -141,6 +141,7 @@ export default function Login() {
       background: 'var(--bg-primary)'
     }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '420px' }}>
+        <InstallPrompt />
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ display: 'inline-flex', marginBottom: '12px' }}>
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-income)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -340,8 +341,6 @@ export default function Login() {
           </svg>
           Continuar con Google
         </button>
-
-        <InstallPrompt />
 
         <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '20px' }}>
           <button
