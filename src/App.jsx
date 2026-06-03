@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { dbService } from './services/dbService';
-import Dashboard from './components/Dashboard';
 import TransactionForm from './components/TransactionForm';
 import TransactionList from './components/TransactionList';
 import CategorySummary from './components/CategorySummary';
 import Login from './components/Login';
+import LoadingSpinner from './components/LoadingSpinner';
 import { AuthProvider, useAuth } from './context/AuthContext';
+
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 const MESES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -126,11 +128,7 @@ function AppContent() {
   };
 
   if (authLoading || (user && loading)) {
-    return (
-      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-        <h3>Cargando tu portal financiero...</h3>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   // Protección de Rutas: Si no hay usuario, mostrar vista de Login
@@ -246,10 +244,12 @@ function AppContent() {
       </header>
 
       {/* DASHBOARD PRINCIPAL */}
-      <Dashboard
-        transactions={transactions}
-        selectedMonth={selectedMonth}
-      />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Dashboard
+          transactions={transactions}
+          selectedMonth={selectedMonth}
+        />
+      </Suspense>
 
       {/* LAYOUT PRINCIPAL */}
       <main className="main-layout">

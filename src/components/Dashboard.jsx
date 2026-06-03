@@ -1,3 +1,4 @@
+import SummaryCard from './ui/SummaryCard';
 
 export default function Dashboard({ transactions, selectedMonth }) {
   // Filtrar transacciones por el mes seleccionado
@@ -28,29 +29,24 @@ export default function Dashboard({ transactions, selectedMonth }) {
 
   return (
     <div className="dashboard-grid">
-      {/* CARD SALDO TOTAL */}
-      <div className="glass-panel card card-balance">
-        <h3 className="card-title">Saldo Neto ({selectedMonth})</h3>
-        <div className="card-value" style={{ color: balance >= 0 ? 'var(--text-primary)' : 'var(--color-expense)' }}>
-          {formatCurrency(balance)}
-        </div>
-      </div>
-
-      {/* CARD INGRESOS */}
-      <div className="glass-panel card card-income">
-        <h3 className="card-title">Ingresos Totales</h3>
-        <div className="card-value" style={{ color: 'var(--color-income)' }}>
-          {formatCurrency(realIncome)}
-        </div>
-      </div>
-
-      {/* CARD EGRESOS */}
-      <div className="glass-panel card card-expense">
-        <h3 className="card-title">Egresos Totales</h3>
-        <div className="card-value" style={{ color: 'var(--color-expense)' }}>
-          {formatCurrency(realExpense)}
-        </div>
-      </div>
+      <SummaryCard
+        title={`Saldo Neto (${selectedMonth})`}
+        value={formatCurrency(balance)}
+        type="balance"
+        valueColor={balance >= 0 ? 'var(--text-primary)' : 'var(--color-expense)'}
+      />
+      <SummaryCard
+        title="Ingresos Totales"
+        value={formatCurrency(realIncome)}
+        type="income"
+        valueColor="var(--color-income)"
+      />
+      <SummaryCard
+        title="Egresos Totales"
+        value={formatCurrency(realExpense)}
+        type="expense"
+        valueColor="var(--color-expense)"
+      />
     </div>
   );
 }

@@ -17,24 +17,21 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
-    async function getInitialSession() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-        }
-      } catch (error) {
-        console.error('Error fetching initial session:', error);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+    // Obtener la sesión inicial de inmediato
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
-    }
+    }).catch(error => {
+      console.error('Error fetching initial session:', error);
+      if (mounted) {
+        setLoading(false);
+      }
+    });
 
-    getInitialSession();
-
+    // Configurar el listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) {
         setSession(session);
